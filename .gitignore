@@ -1,1 +1,6 @@
 hello-world/node_modules
+hello-world/dist
+math/node_modules/
+math/src/sum/target/
+math/src/square/target/
+test-ledger

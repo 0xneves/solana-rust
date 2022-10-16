@@ -43,12 +43,12 @@ async function main() {
   /*
   Generate an account (keypair) to transact with our program
   */
-  const latestBlockHash = await connection.getLatestBlockhash()
   const triggerKeypair = Keypair.generate()
   const airdropRequest = await connection.requestAirdrop(
     triggerKeypair.publicKey,
     LAMPORTS_PER_SOL,
   )
+  const latestBlockHash = await connection.getLatestBlockhash()
   await connection.confirmTransaction({
     blockhash: latestBlockHash.blockhash,
     lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,

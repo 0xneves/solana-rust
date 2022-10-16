@@ -46,3 +46,10 @@ solana program show --programs --config /home/guilherme/.config/solana/id.json -
 ```
 solana program deploy --program-id <KEYPAIR_FILEPATH> <PROGRAM_FILEPATH>
 ```
+
+## Start Solana Cluster
+
+```
+solana-test-validator
+solana logs | grep "5mQBRw1ykyF1JFDucEmAUGqC8xGYADyyJcPyvQ6hQGiC invoke" -A 10
+```
