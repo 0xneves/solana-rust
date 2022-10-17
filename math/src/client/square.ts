@@ -1,22 +1,24 @@
 import * as borsh from 'borsh'
 import * as math from './math'
 
-class MathStuffSum {
-  sum = 0
-  constructor(fields: { sum?: number } = {}) {
-    this.sum = fields.sum || 0
+class SquareCounter {
+  square = 0
+  constructor(fields: { square?: number } = {}) {
+    this.square = fields.square || 0
   }
 }
 
-const MathStuffSumSchema = new Map([
-  [MathStuffSum, { kind: 'struct', fields: [['sum', 'u64']] }],
+const MathStuffSquareSchema = new Map([
+  [SquareCounter, { kind: 'struct', fields: [['square', 'u32']] }],
 ])
 
-const MATH_STUFF_SIZE = borsh.serialize(MathStuffSumSchema, new MathStuffSum())
-  .length
+const MATH_STUFF_SIZE = borsh.serialize(
+  MathStuffSquareSchema,
+  new SquareCounter(),
+).length
 
 async function main() {
-  await math.example('sum', MATH_STUFF_SIZE)
+  await math.example('square', MATH_STUFF_SIZE)
 }
 
 main().then(

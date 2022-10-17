@@ -1,7 +1,7 @@
 import * as borsh from 'borsh'
 import * as math from './math'
 
-class MathStuffSum {
+class SumCounter {
   sum = 0
   constructor(fields: { sum?: number } = {}) {
     this.sum = fields.sum || 0
@@ -9,10 +9,10 @@ class MathStuffSum {
 }
 
 const MathStuffSumSchema = new Map([
-  [MathStuffSum, { kind: 'struct', fields: [['sum', 'u64']] }],
+  [SumCounter, { kind: 'struct', fields: [['sum', 'u32']] }],
 ])
 
-const MATH_STUFF_SIZE = borsh.serialize(MathStuffSumSchema, new MathStuffSum())
+const MATH_STUFF_SIZE = borsh.serialize(MathStuffSumSchema, new SumCounter())
   .length
 
 async function main() {

@@ -51,5 +51,13 @@ solana program deploy --program-id <KEYPAIR_FILEPATH> <PROGRAM_FILEPATH>
 
 ```
 solana-test-validator
-solana logs | grep "5mQBRw1ykyF1JFDucEmAUGqC8xGYADyyJcPyvQ6hQGiC invoke" -A 10
+solana logs | grep "<PROGRAM_ID>"
+```
+
+## Clean and Build
+
+```
+pnpm run reset-and-build
+pnpm run example:sum
+pnpm run example:square
 ```

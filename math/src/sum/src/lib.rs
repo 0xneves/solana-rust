@@ -9,7 +9,7 @@ use solana_program::{
 };
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-pub struct CounterSum {
+pub struct SumCounter {
     pub sum: u32,
 }
 
@@ -27,9 +27,11 @@ fn process_instruction(
         return Err(ProgramError::IncorrectProgramId);
     }
 
-    let mut total_supply = CounterSum::try_from_slice(&account.data.borrow())?;
+    let mut total_supply = SumCounter::try_from_slice(&account.data.borrow())?;
     total_supply.sum += 1;
     total_supply.serialize(&mut *account.data.borrow_mut())?;
+
+    msg!("Supply: ", total_supply.sum);
 
     Ok(())
 }

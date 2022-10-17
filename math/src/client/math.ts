@@ -13,6 +13,7 @@ import fs from 'mz/fs'
 import os from 'os'
 import path from 'path'
 import yaml from 'yaml'
+import * as borsh from 'borsh'
 
 /*
 Paht to Solana CLI config file
@@ -33,12 +34,12 @@ let clientPubKey: PublicKey
 
 const PROGRAM_PATH = path.resolve(__dirname, '../../dist/program')
 
-export async function connect() {
+export async function connect(): Promise<void> {
   connection = new Connection('https://api.devnet.solana.com', 'confirmed')
   console.log('Connecting to devnet')
 }
 
-export async function getLocalAccount() {
+export async function getLocalAccount(): Promise<void> {
   const configYml = await fs.readFile(CONFIG_FILE_PATH, { encoding: 'utf8' })
   const keypairPath = await yaml.parse(configYml).keypair_path
   localKeypair = await createKeypairFromFile(keypairPath)
@@ -46,18 +47,19 @@ export async function getLocalAccount() {
     localKeypair.publicKey,
     LAMPORTS_PER_SOL,
   )
-  const latestBlockHash = await connection.getLatestBlockhash()
-  await connection.confirmTransaction({
-    blockhash: latestBlockHash.blockhash,
-    lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-    signature: airdropRequest,
-  })
+  // const latestBlockHash = await connection.getLatestBlockhash()
+  // await connection.confirmTransaction({
+  //   blockhash: latestBlockHash.blockhash,
+  //   lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+  //   signature: airdropRequest,
+  // })
+  await connection.confirmTransaction(airdropRequest)
   console.log('Local account loaded successfully')
   console.log('Local accounts address is:')
   console.log(`     ${localKeypair.publicKey}`)
 }
 
-export async function loadProgram(programName: string) {
+export async function loadProgram(programName: string): Promise<void> {
   programKeypair = await createKeypairFromFile(
     path.join(PROGRAM_PATH, programName + '-keypair.json'),
   )
@@ -67,26 +69,33 @@ export async function loadProgram(programName: string) {
   console.log(`     ${programId.toBase58()}`)
 }
 
-export async function configureClientAccount(accountSpaceSize: number) {
-  const SEED = 'test1'
+export async function configureClientAccount(
+  accountSpaceSize: number,
+  programName: string,
+): Promise<void> {
+  const SEED = 'math'
   clientPubKey = await PublicKey.createWithSeed(
     localKeypair.publicKey,
     SEED,
     programId,
   )
-  console.log('The generated address is:')
-  console.log(`     ${clientPubKey.toBase58()}`)
 
   const clientAccount = await connection.getAccountInfo(clientPubKey)
+
   if (clientAccount === null) {
-    console.log('Creating client account...')
+    console.log('Creating account', clientPubKey.toBase58())
+
+    const lamports = await connection.getMinimumBalanceForRentExemption(
+      accountSpaceSize,
+    )
+
     const createAccountTransaction = new Transaction().add(
       SystemProgram.createAccountWithSeed({
         fromPubkey: localKeypair.publicKey,
         basePubkey: localKeypair.publicKey,
         seed: SEED,
         newAccountPubkey: clientPubKey,
-        lamports: LAMPORTS_PER_SOL,
+        lamports,
         space: accountSpaceSize,
         programId,
       }),
@@ -101,7 +110,7 @@ export async function configureClientAccount(accountSpaceSize: number) {
   return
 }
 
-export async function pingProgram(programName: string) {
+export async function pingProgram(programName: string): Promise<void> {
   const instruction = new TransactionInstruction({
     keys: [{ pubkey: clientPubKey, isSigner: false, isWritable: true }],
     programId,
@@ -119,6 +128,6 @@ export async function example(programName: string, accountSpaceSize: number) {
   await connect()
   await getLocalAccount()
   await loadProgram(programName)
-  await configureClientAccount(accountSpaceSize)
+  await configureClientAccount(accountSpaceSize, programName)
   await pingProgram(programName)
 }

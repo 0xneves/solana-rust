@@ -9,8 +9,8 @@ use solana_program::{
 };
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-pub struct CounterSquare {
-    pub sum: u32,
+pub struct SquareCounter {
+    pub square: u32,
 }
 
 entrypoint!(process_instruction);
@@ -27,9 +27,11 @@ fn process_instruction(
         return Err(ProgramError::IncorrectProgramId);
     }
 
-    let mut total_supply = CounterSquare::try_from_slice(&account.data.borrow())?;
-    total_supply.sum += 1;
+    let mut total_supply = SquareCounter::try_from_slice(&account.data.borrow())?;
+    math_stuff.square = math_stuff.square.pow(2);
     total_supply.serialize(&mut *account.data.borrow_mut())?;
+
+    msg!("Supply: ", total_supply.square);
 
     Ok(())
 }
